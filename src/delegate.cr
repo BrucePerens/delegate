@@ -17,7 +17,7 @@ class Object
          {% args = m.args.splat %}
          {% yield_args = "*args".id %}
        {% end %}
-       # This method was created by {{@type.name}}.delegate2 {{name}}, to: {{to}} at {{file}}:{{line}}.
+       # `{{@type.name}}.delegate2 {{name}}, to: {{to}}` at {{file.id}}:{{line.id}} to {{m.filename.id}}:{{m.line_number.id}}
        def {{name}}({{args}}) {% if !m.return_type.is_a?(Nop) %}: {{m.return_type}} {% end %}
          {{to}}.{{name}}({{m.args.map(&.internal_name).splat}}) {% if m.accepts_block? %}{ |{{yield_args}}| yield({{yield_args}})}{% end %}
        end
