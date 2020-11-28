@@ -1,5 +1,6 @@
 # FIX: Figure out, if I want it to be seen in the error messages for 
-# macro expansion
+# macro expansion, whether using an informational comment is sufficient,
+# or if I should put it in an annotation or something else.
 class Object
   macro delegate2(name, to, file = __FILE__, line = __LINE__)
    {% methods = @type.methods %}
