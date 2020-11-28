@@ -1,13 +1,14 @@
 class Object
-  macro delegate(name, to)
+  macro delegate2(name, to)
     {% methods = @type.methods %}
     {% for m in methods %}
       {% if m.name.id == name.id %}
-        {% begin %}
-          def {{name}}({{m.args.join(",").id}}) {{ m.return_type.stringify != "" ? ": #{m.return_type}".id : "".id }}
-            {{to}}.{{name}}({{m.args.map{ |arg| arg.internal_name }.join(", ").id}})
-          end
+        {% has_yield = m.body.stringify.includes?("yield") %}
+        {% if has_yield %}
+          {% raise "delegate() called on a method with a block." %}
         {% end %}
+        def {{name}}({{m.args.join(",").id}}) {{ m.return_type.stringify != "" ? ": #{m.return_type}".id : "".id }}
+        end
       {% end %}
     {% end %}
   end
@@ -15,14 +16,18 @@ end
 
 class A
   def foo(a : Int32) : String
+    yield
     "Hello from A#foo!"
   end
 end
 
 class B
   @b = A.new
-  typeof(@b).delegate(foo, to: @b)
+  A.delegate2(foo, to: @b)
 end
 
 b = B.new
-p b.foo(1)
+b.foo(1) do |t|
+  p "Block!"
+end
+
