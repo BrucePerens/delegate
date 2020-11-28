@@ -2,12 +2,13 @@ class Object
   macro delegate2(name, to)
    {% if m = @type.methods.find &.name.id.==(name.id) %}
      {% if m.block_arg %}
-       {% args = m.block_arg.restriction.inputs %}
-       {% yield_args = args.map_with_index{|a,index| "arg#{index}".id}.splat %}
+       {% args = (m.args + ["&#{m.block_arg}".id]).splat %}
+       {% yield_args = m.block_arg.restriction.inputs.map_with_index{|a,index| "arg#{index}".id}.splat %}
      {% else %}
+       {% args = m.args.splat %}
        {% yield_args = "*args".id %}
      {% end %}
-     def {{name}}({{(m.args + ["&#{m.block_arg}".id]).splat}}) {% if !m.return_type.is_a?(Nop) %}: {{m.return_type}} {% end %}
+     def {{name}}({{args}}) {% if !m.return_type.is_a?(Nop) %}: {{m.return_type}} {% end %}
        {{to}}.{{name}}({{m.args.map(&.internal_name).splat}}) {% if m.accepts_block? %}{ |{{yield_args}}| yield({{yield_args}})}{% end %}
      end
    {% else %}
@@ -18,8 +19,8 @@ class Object
 end
 
 class A
-  def foo(a : Int32, &block : Int32 -> String) : String
-    yield a
+  def foo(a : Int32, b : Int32, &block : Int32, Int32 -> String) : String
+    yield a, b
   end
 end
 
@@ -29,4 +30,4 @@ class B
 end
 
 b = B.new
-p b.foo(1) { |i| "Hello" }
+p b.foo(1, 2) { |i, j| "Hello" }
